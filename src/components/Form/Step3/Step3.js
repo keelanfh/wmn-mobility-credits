@@ -11,6 +11,7 @@ const Step3 = ({
   currentStep,
   setCurrentStep,
   formRef,
+  isFetching
 }) => {
   const [formState] = useContext(FormContext); // Get the state of form data from FormContext
   const [errorState, errorDispatch] = useContext(FormErrorContext); // Get the error state of form data from FormErrorContext
@@ -41,14 +42,24 @@ const Step3 = ({
         <GenericError />
       )}
 
-      <UploadTicket />}
+      <UploadTicket />
 
       <button
-        type="button"
+        type="submit"
         className="wmnds-btn wmnds-btn--disabled wmnds-col-1 wmnds-m-t-md"
-        onClick={() => handleContinue()}
+        disabled={isFetching} // Disable button so users can't spam submit
       >
-        Continue
+        Submit application
+        {/* If API is fetching */}
+        {isFetching && (
+          <div
+            className="wmnds-loader wmnds-loader--btn wmnds-btn__icon wmnds-btn__icon--right"
+            role="alert"
+            aria-live="assertive"
+          >
+            <p className="wmnds-loader__content">Content is loading...</p>
+          </div>
+        )}
       </button>
     </>
   );

@@ -15,6 +15,9 @@ import useLogRocketTracking from './useLogRocketTracking';
 // Import styling
 import s from './Form.module.scss';
 
+import jwt_decode from "jwt-decode";
+
+
 const Form = ({ formSubmitStatus, setFormSubmitStatus }) => {
   const [formState, formDispatch] = useContext(FormContext); // Get the state of form data from FormContext
   const [errorState, errorDispatch] = useContext(FormErrorContext); // Get the error state of form data from FormErrorContext
@@ -42,12 +45,19 @@ const Form = ({ formSubmitStatus, setFormSubmitStatus }) => {
 
       setIsFetching(true); // Set this so we can put loading state on button
 
+      let search = window.location.search;
+      let params = new URLSearchParams(search);
+      let jwtoken = params.get('jwt');
+
+
+
       // Go hit the API with the data
       fetch(process.env.REACT_APP_API_HOST, {
         method: 'post',
         body: JSON.stringify(formState),
         headers: {
           'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + jwtoken,
         },
       })
         .then((response) => {
@@ -97,6 +107,13 @@ const Form = ({ formSubmitStatus, setFormSubmitStatus }) => {
     }
   };
 
+
+    let search = window.location.search;
+    let params = new URLSearchParams(search);
+    let token = params.get('jwt');
+    let decoded = jwt_decode(token);
+
+
   return (
     <>
       <div className="wmnds-col-1 wmnds-col-md-3-4 ">
@@ -107,6 +124,7 @@ const Form = ({ formSubmitStatus, setFormSubmitStatus }) => {
             {currentStep === 1 && (
               <Step1
                 formRef={formRef}
+				        Step1 vehicle={decoded.CarType}
                 setCurrentStep={setCurrentStep}
                 currentStep={currentStep}
                 setIsPaperTicket={setIsPaperTicket}
