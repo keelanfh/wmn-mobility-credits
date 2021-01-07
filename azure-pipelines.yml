@@ -27,6 +27,31 @@ steps:
 #     npm run build
 #   displayName: 'npm install and build'
 
+- task: PowerShell@2
+  displayName: 'output get suffix arm template'
+  inputs:
+    pwsh: true
+    targetType: 'inline'
+    script: |
+      $makeSuffix=@'
+      {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {},
+          "variables": {
+              "resourceGroupSuffix": "[uniqueString(resourceGroup().id, resourceGroup().location)]"
+          },
+          "resources": [],
+          "outputs": {
+              "suffix": {
+                  "type": "string",
+                  "value": "[variables('resourceGroupSuffix')]"
+              }
+          }
+      }
+      '@
+      $makeSuffix | Out-File -FilePath '$(System.DefaultWorkingDirectory)/make-suffix.json'
+
 - task: AzureResourceManagerTemplateDeployment@3
   inputs:
     deploymentScope: 'Resource Group'
@@ -36,7 +61,7 @@ steps:
     resourceGroupName: '$(MobilityCreditsResourceGroup)'
     location: 'UK South'
     templateLocation: 'Linked artifact'
-    csmFile: '$(System.DefaultWorkingDirectory)/MobilityCredits/Coventry/Pipelines/ARM templates/make-suffix.json'
+    csmFile: '$(System.DefaultWorkingDirectory)/make-suffix.json'
     deploymentMode: 'Incremental'
     deploymentOutputs: 'suffixOutput'
 
@@ -44,10 +69,13 @@ steps:
   displayName: 'get storage account output parameters'
   env:
     SuffixJsonString: '$(suffixOutput)'
+    DefaultWorkingDirectory: $(System.DefaultWorkingDirectory)
   inputs:
     pwsh: true
     targetType: 'inline'
     script: |
+      # tidy up the output-suffix.json file just so that it doesn't mess up the build somehow...
+      Remove-Item '$env:DefaultWorkingDirectory'/make-suffix.json'
       Write-Host $env:SuffixJsonString
       $json = $env:SuffixJsonString | convertfrom-json
       $suffix = $json.storageAccountNameOutput.value
