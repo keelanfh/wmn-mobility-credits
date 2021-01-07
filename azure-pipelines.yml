@@ -3,19 +3,81 @@
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
+
 trigger:
 - main
+variables:
+- group: 'CoventryMobilityCredits_JM' # mobility credits specific stuff
+- group: 'WmnApi_JM_Dev_Deploy' # things that we can use from the api management variables
 
 pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '10.x'
-  displayName: 'Install Node.js'
 
-- script: |
-    npm install
-    npm run build
-  displayName: 'npm install and build'
+- checkout: self
+
+# - task: NodeTool@0
+#   inputs:
+#     versionSpec: '10.x'
+#   displayName: 'Install Node.js'
+
+# - script: |
+#     npm install
+#     npm run build
+#   displayName: 'npm install and build'
+
+- task: AzureResourceManagerTemplateDeployment@3
+  inputs:
+    deploymentScope: 'Resource Group'
+    azureResourceManagerConnection: '$(subscriptionName)'
+    subscriptionId: '$(subscriptionId)'
+    action: 'Create Or Update Resource Group'
+    resourceGroupName: '$(MobilityCreditsResourceGroup)'
+    location: 'UK South'
+    templateLocation: 'Linked artifact'
+    csmFile: '$(System.DefaultWorkingDirectory)/MobilityCredits/Coventry/Pipelines/ARM templates/make-suffix.json'
+    deploymentMode: 'Incremental'
+    deploymentOutputs: 'suffixOutput'
+
+- task: PowerShell@2
+  displayName: 'get storage account output parameters'
+  env:
+    SuffixJsonString: '$(suffixOutput)'
+  inputs:
+    pwsh: true
+    targetType: 'inline'
+    script: |
+      Write-Host $env:SuffixJsonString
+      $json = $env:SuffixJsonString | convertfrom-json
+      $suffix = $json.storageAccountNameOutput.value
+      Write-Host "##vso[task.setvariable variable=RGDO_UniqueString]$($suffix)"
+
+- script: echo $(RGDO_UniqueString)
+
+# - task: AzurePowerShell@5
+#   displayName: 'enable static web hosting'
+#   env:
+#     SubscriptionId: '$(subscriptionId)'
+#     ResourceGroupName: '$(MobilityCreditsResourceGroup)'
+#     StorageAccountName: '$(RGDO_StorageAccountNameWithSuffix)'
+#   inputs:
+#     azureSubscription: '$(subscriptionName)'
+#     ScriptType: 'InlineScript'
+#     Inline: |
+#       npm install
+#       npm run build
+
+#       # You can write your azure powershell scripts inline here. 
+#       # You can also pass predefined and custom variables to this script using arguments
+#       $context = Get-AzSubscription -SubscriptionId $env:SubscriptionId
+#       Set-AzContext $context
+#       $storageAccount = Get-AzStorageAccount -ResourceGroupName "$env:ResourceGroupName" -AccountName "$env:StorageAccountName"
+#       $ctx = $storageAccount.Context
+#       $staticWebsiteProperties = Enable-AzStorageStaticWebsite -Context $ctx -IndexDocument "index.html" -ErrorDocument404Path "error.html"
+#       $staticWebsiteProperties | ConvertTo-Json
+#     azurePowerShellVersion: 'LatestVersion'
+#     pwsh: true
+
+
+# ($env:REACT_APP_API_HOST="https://transport-api-developmentzzz.azure-api.net/mobilityscheme/upload") -and ($env:PUBLIC_URL = "https://coventrmobsangularzzz.z33.web.core.windows.net") -and (npm run-script build)
