@@ -78,10 +78,10 @@ steps:
       $json = $env:SuffixJsonString | convertfrom-json
       $suffix = $json.storageAccountNameOutput.value
 
+      $V5StorageAccountName = $env:V5StorageAccountName
       Write-Host "V5StorageAccountName: $V5StorageAccountName"
       Write-Host "suffix: $suffix"
 
-      $V5StorageAccountName = $env:V5StorageAccountName
       $storageWithSuffixExtraLong = "{0}{1}{0}{1}" -f $V5StorageAccountName, $suffix
       $storageWithSuffix = $storageWithSuffixExtraLong.Substring(0,24)
       Write-Host "##vso[task.setvariable variable=RGDO_StorageAccountNameWithSuffix]$($storageWithSuffix)"
