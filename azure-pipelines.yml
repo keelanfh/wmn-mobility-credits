@@ -65,6 +65,7 @@ steps:
   displayName: 'get storage account output parameters'
   env:
     SuffixJsonString: '$(suffixOutput)'
+    V5StorageAccountName: '$(V5StorageAccountName)'
     DefaultWorkingDirectory: $(System.DefaultWorkingDirectory)
   inputs:
     pwsh: true
@@ -75,7 +76,10 @@ steps:
       Write-Host $env:SuffixJsonString
       $json = $env:SuffixJsonString | convertfrom-json
       $suffix = $json.storageAccountNameOutput.value
-      Write-Host "##vso[task.setvariable variable=RGDO_StorageAccountNameWithSuffix]$($suffix)"
+      $V5StorageAccountName = $env:V5StorageAccountName
+      $storageWithSuffixExtraLong = "{0}{1}{0}{1}" -f $V5StorageAccountName, $suffix
+      $storageWithSuffix = $storageWithSuffixExtraLong.Substring(0,24)
+      Write-Host "##vso[task.setvariable variable=RGDO_StorageAccountNameWithSuffix]$($storageWithSuffix)"
 
 - script: echo $(RGDO_UniqueString)
 
