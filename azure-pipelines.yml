@@ -150,14 +150,14 @@ steps:
 
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: '$(Pipeline.Workspace)'
+    targetPath: '$(Pipeline.Workspace)/s/build'
     artifact: 'react'
     publishLocation: 'pipeline'
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(Pipeline.Workspace)'
-    ArtifactName: 'react'
-    publishLocation: 'Container'
+# - task: PublishBuildArtifacts@1
+#   inputs:
+#     PathtoPublish: '$(Pipeline.Workspace)'
+#     ArtifactName: 'react'
+#     publishLocation: 'Container'
 
 # ($env:REACT_APP_API_HOST="https://transport-api-developmentzzz.azure-api.net/mobilityscheme/upload") -and ($env:PUBLIC_URL = "https://coventrmobsangularzzz.z33.web.core.windows.net") -and (npm run-script build)
