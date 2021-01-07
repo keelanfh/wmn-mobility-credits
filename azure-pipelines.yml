@@ -17,15 +17,11 @@ steps:
 
 - checkout: self
 
-# - task: NodeTool@0
-#   inputs:
-#     versionSpec: '10.x'
-#   displayName: 'Install Node.js'
+- task: NodeTool@0
+  inputs:
+    versionSpec: '10.x'
+  displayName: 'Install Node.js'
 
-# - script: |
-#     npm install
-#     npm run build
-#   displayName: 'npm install and build'
 
 - task: PowerShell@2
   displayName: 'output get suffix arm template'
@@ -83,29 +79,36 @@ steps:
 
 - script: echo $(RGDO_UniqueString)
 
-# - task: AzurePowerShell@5
-#   displayName: 'enable static web hosting'
-#   env:
-#     SubscriptionId: '$(subscriptionId)'
-#     ResourceGroupName: '$(MobilityCreditsResourceGroup)'
-#     StorageAccountName: '$(RGDO_StorageAccountNameWithSuffix)'
-#   inputs:
-#     azureSubscription: '$(subscriptionName)'
-#     ScriptType: 'InlineScript'
-#     Inline: |
-#       npm install
-#       npm run build
+- task: AzurePowerShell@5
+  displayName: 'build react form'
+  env:
+    SubscriptionId: '$(subscriptionId)'
+    ResourceGroupName: '$(MobilityCreditsResourceGroup)'
+    ReactFormUrl: '$(ReactFormUrl)'
+    StorageAccountName: '$(RGDO_StorageAccountNameWithSuffix)'
+  inputs:
+    azureSubscription: '$(subscriptionName)'
+    ScriptType: 'InlineScript'
+    Inline: |
+      npm install
+      #npm run build
+      # if this is empty then set it to thew 
+      $ReactFormUrl = $env:ReactFormUrl
+      if([string]::IsNullOrEmpty($ReactFormUrl)){
+          $storageAccount = Get-AzStorageAccount -ResourceGroupName "$env:ResourceGroupName" -AccountName "$env:StorageAccountName"
+          $ReactFormUrl = $storageAccount.PrimaryEndpoints.Web
+      }
+      $apim = Get-AzApiManagement -ResourceGroupName "transport-api-c-sharp-rg" -Name "transport-api-c-sharp-2"
+      $apim.RuntimeUrl
+      $reactAppApiHost = "{0}/mobilityscheme/upload" -f $apim.RuntimeUrl
+      $context = Get-AzSubscription -SubscriptionId $env:SubscriptionId
+      Set-AzContext $context
+      $storageAccount = Get-AzStorageAccount -ResourceGroupName "$env:ResourceGroupName" -AccountName "$env:StorageAccountName"
+      ($env:REACT_APP_API_HOST="$reactAppApiHost") -and ($env:PUBLIC_URL = "$ReactFormUrl") -and (npm run-script build)
 
-#       # You can write your azure powershell scripts inline here. 
-#       # You can also pass predefined and custom variables to this script using arguments
-#       $context = Get-AzSubscription -SubscriptionId $env:SubscriptionId
-#       Set-AzContext $context
-#       $storageAccount = Get-AzStorageAccount -ResourceGroupName "$env:ResourceGroupName" -AccountName "$env:StorageAccountName"
-#       $ctx = $storageAccount.Context
-#       $staticWebsiteProperties = Enable-AzStorageStaticWebsite -Context $ctx -IndexDocument "index.html" -ErrorDocument404Path "error.html"
-#       $staticWebsiteProperties | ConvertTo-Json
-#     azurePowerShellVersion: 'LatestVersion'
-#     pwsh: true
+
+    azurePowerShellVersion: 'LatestVersion'
+    pwsh: true
 
 
 # ($env:REACT_APP_API_HOST="https://transport-api-developmentzzz.azure-api.net/mobilityscheme/upload") -and ($env:PUBLIC_URL = "https://coventrmobsangularzzz.z33.web.core.windows.net") -and (npm run-script build)
