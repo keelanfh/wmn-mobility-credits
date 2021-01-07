@@ -75,7 +75,7 @@ steps:
       Write-Host $env:SuffixJsonString
       $json = $env:SuffixJsonString | convertfrom-json
       $suffix = $json.storageAccountNameOutput.value
-      Write-Host "##vso[task.setvariable variable=RGDO_UniqueString]$($suffix)"
+      Write-Host "##vso[task.setvariable variable=RGDO_StorageAccountNameWithSuffix]$($suffix)"
 
 - script: echo $(RGDO_UniqueString)
 
