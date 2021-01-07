@@ -118,14 +118,21 @@ steps:
       $apim.RuntimeUrl
       $reactAppApiHost = "{0}/mobilityscheme/upload" -f $apim.RuntimeUrl
       ($env:REACT_APP_API_HOST="$reactAppApiHost") -and ($env:PUBLIC_URL = "$ReactFormUrl") -and (npm run-script build)
-      $DefaultWorkingDirectory =  $env:DefaultWorkingDirectory
-      $ArtifactStagingDirectory =  $env:ArtifactStagingDirectory
-      Get-ChildItem -path "$DefaultWorkingDirectory" -Recurse
-      Get-ChildItem -path "$ArtifactStagingDirectory" -Recurse
+      # $DefaultWorkingDirectory =  $env:DefaultWorkingDirectory
+      # $ArtifactStagingDirectory =  $env:ArtifactStagingDirectory
+      # Get-ChildItem -path "$DefaultWorkingDirectory" -Recurse
+      # Get-ChildItem -path "$ArtifactStagingDirectory" -Recurse
 
     azurePowerShellVersion: 'LatestVersion'
     pwsh: true
 
+- task: CmdLine@2
+  inputs:
+    script: 'ls $(System.DefaultWorkingDirectory) -LR'
+
+- task: CmdLine@2
+  inputs:
+    script: 'ls $(Build.ArtifactStagingDirectory) -LR'
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(System.DefaultWorkingDirectory)/Build'
