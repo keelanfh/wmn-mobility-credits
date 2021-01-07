@@ -75,7 +75,7 @@ steps:
     targetType: 'inline'
     script: |
       # tidy up the output-suffix.json file just so that it doesn't mess up the build somehow...
-      Remove-Item '$env:DefaultWorkingDirectory'/make-suffix.json'
+      Remove-Item "$env:DefaultWorkingDirectory/make-suffix.json"
       Write-Host $env:SuffixJsonString
       $json = $env:SuffixJsonString | convertfrom-json
       $suffix = $json.storageAccountNameOutput.value
