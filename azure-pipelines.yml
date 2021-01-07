@@ -95,6 +95,8 @@ steps:
     ResourceGroupName: '$(MobilityCreditsResourceGroup)'
     ReactFormUrl: '$(ReactFormUrl)'
     StorageAccountName: '$(RGDO_StorageAccountNameWithSuffix)'
+    DefaultWorkingDirectory: $(System.DefaultWorkingDirectory)
+    ArtifactStagingDirectory: $(Build.ArtifactStagingDirectory)
   inputs:
     azureSubscription: '$(subscriptionName)'
     ScriptType: 'InlineScript'
@@ -116,7 +118,10 @@ steps:
       $apim.RuntimeUrl
       $reactAppApiHost = "{0}/mobilityscheme/upload" -f $apim.RuntimeUrl
       ($env:REACT_APP_API_HOST="$reactAppApiHost") -and ($env:PUBLIC_URL = "$ReactFormUrl") -and (npm run-script build)
-
+      $DefaultWorkingDirectory =  $env:DefaultWorkingDirectory
+      $ArtifactStagingDirectory =  $env:ArtifactStagingDirectory
+      Get-ChildItem -path "$DefaultWorkingDirectory" -Recurse
+      Get-ChildItem -path "$ArtifactStagingDirectory" -Recurse
 
     azurePowerShellVersion: 'LatestVersion'
     pwsh: true
