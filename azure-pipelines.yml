@@ -133,9 +133,12 @@ steps:
 - task: CmdLine@2
   inputs:
     script: 'ls $(Build.ArtifactStagingDirectory) -LR'
+
+
+
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: '$(System.DefaultWorkingDirectory)/Build'
+    PathtoPublish: '$(System.DefaultWorkingDirectory)/Build/'
     ArtifactName: 'react'
     publishLocation: 'Container'
 
