@@ -126,20 +126,12 @@ steps:
     azurePowerShellVersion: 'LatestVersion'
     pwsh: true
 
-- task: CmdLine@2
+
+- task: AzureFileCopy@4
   inputs:
-    script: 'ls $(System.DefaultWorkingDirectory) -LR'
+    SourcePath: '$(System.DefaultWorkingDirectory)/Build/'
+    azureSubscription: '$(subscriptionName)'
+    Destination: 'AzureBlob'
+    storage: '$(RGDO_StorageAccountNameWithSuffix)'
+    ContainerName: '$web'
 
-- task: CmdLine@2
-  inputs:
-    script: 'ls $(Build.ArtifactStagingDirectory) -LR'
-
-
-
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(System.DefaultWorkingDirectory)/Build/'
-    ArtifactName: 'react'
-    publishLocation: 'Container'
-
-# ($env:REACT_APP_API_HOST="https://transport-api-developmentzzz.azure-api.net/mobilityscheme/upload") -and ($env:PUBLIC_URL = "https://coventrmobsangularzzz.z33.web.core.windows.net") -and (npm run-script build)
