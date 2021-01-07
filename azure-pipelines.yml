@@ -94,16 +94,18 @@ steps:
       #npm run build
       # if this is empty then set it to thew 
       $ReactFormUrl = $env:ReactFormUrl
+      $ResourceGroupName = $env:ResourceGroupName
+      $StorageAccountName = $env:StorageAccountName
+      $SubscriptionId = $env:SubscriptionId
       if([string]::IsNullOrEmpty($ReactFormUrl)){
-          $storageAccount = Get-AzStorageAccount -ResourceGroupName "$env:ResourceGroupName" -AccountName "$env:StorageAccountName"
+          $context = Get-AzSubscription -SubscriptionId $SubscriptionId
+          Set-AzContext $context
+          $storageAccount = Get-AzStorageAccount -ResourceGroupName "$ResourceGroupName" -AccountName "$StorageAccountName"
           $ReactFormUrl = $storageAccount.PrimaryEndpoints.Web
       }
       $apim = Get-AzApiManagement -ResourceGroupName "transport-api-c-sharp-rg" -Name "transport-api-c-sharp-2"
       $apim.RuntimeUrl
       $reactAppApiHost = "{0}/mobilityscheme/upload" -f $apim.RuntimeUrl
-      $context = Get-AzSubscription -SubscriptionId $env:SubscriptionId
-      Set-AzContext $context
-      $storageAccount = Get-AzStorageAccount -ResourceGroupName "$env:ResourceGroupName" -AccountName "$env:StorageAccountName"
       ($env:REACT_APP_API_HOST="$reactAppApiHost") -and ($env:PUBLIC_URL = "$ReactFormUrl") -and (npm run-script build)
 
 
