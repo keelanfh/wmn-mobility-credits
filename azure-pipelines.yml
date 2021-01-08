@@ -97,31 +97,32 @@ steps:
     StorageAccountName: '$(RGDO_StorageAccountNameWithSuffix)'
     DefaultWorkingDirectory: $(System.DefaultWorkingDirectory)
     ArtifactStagingDirectory: $(Build.ArtifactStagingDirectory)
+    ApimResourceGroup: $(apiManagementResourceGroup)
+    ApimName: $(apiManagementName)
   inputs:
     azureSubscription: '$(subscriptionName)'
     ScriptType: 'InlineScript'
     Inline: |
       npm install
       #npm run build
-      # if this is empty then set it to thew 
+      # if this is empty then set it to the url of the blob storage static web hosting 
       $ReactFormUrl = $env:ReactFormUrl
       $ResourceGroupName = $env:ResourceGroupName
       $StorageAccountName = $env:StorageAccountName
       $SubscriptionId = $env:SubscriptionId
+      $ApimResourceGroup = $env:ApimResourceGroup
+      $ApimName = $env:ApimName
+
       if([string]::IsNullOrEmpty($ReactFormUrl)){
           $context = Get-AzSubscription -SubscriptionId $SubscriptionId
           Set-AzContext $context
           $storageAccount = Get-AzStorageAccount -ResourceGroupName "$ResourceGroupName" -AccountName "$StorageAccountName"
           $ReactFormUrl = $storageAccount.PrimaryEndpoints.Web
       }
-      $apim = Get-AzApiManagement -ResourceGroupName "transport-api-c-sharp-rg" -Name "transport-api-c-sharp-2"
+      $apim = Get-AzApiManagement -ResourceGroupName "$ApimResourceGroup" -Name "$ApimName"
       $apim.RuntimeUrl
       $reactAppApiHost = "{0}/mobilityscheme/upload" -f $apim.RuntimeUrl
       ($env:REACT_APP_API_HOST="$reactAppApiHost") -and ($env:PUBLIC_URL = "$ReactFormUrl") -and (npm run-script build)
-      # $DefaultWorkingDirectory =  $env:DefaultWorkingDirectory
-      # $ArtifactStagingDirectory =  $env:ArtifactStagingDirectory
-      # Get-ChildItem -path "$DefaultWorkingDirectory" -Recurse
-      # Get-ChildItem -path "$ArtifactStagingDirectory" -Recurse
     azurePowerShellVersion: 'LatestVersion'
     pwsh: true
 
