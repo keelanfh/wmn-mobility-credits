@@ -122,30 +122,8 @@ steps:
       # $ArtifactStagingDirectory =  $env:ArtifactStagingDirectory
       # Get-ChildItem -path "$DefaultWorkingDirectory" -Recurse
       # Get-ChildItem -path "$ArtifactStagingDirectory" -Recurse
-
     azurePowerShellVersion: 'LatestVersion'
     pwsh: true
-
-- task: CmdLine@2
-  inputs:
-    script: 'ls $(System.DefaultWorkingDirectory) -LR'
-
-- task: CmdLine@2
-  inputs:
-    script: 'ls $(Build.ArtifactStagingDirectory) -LR'
-
-- task: CmdLine@2
-  inputs:
-    script: 'ls $(Pipeline.Workspace) -LR'
-
-# - task: AzureFileCopy@4
-#   inputs:
-#     SourcePath: '$(System.DefaultWorkingDirectory)/Build/'
-#     azureSubscription: 'MSDN_JM'
-#     Destination: 'AzureBlob'
-#     storage: 'covmobsv5gkwsdjjiwyn24co'
-#     ContainerName: '$web'
-
 
 
 - task: PublishPipelineArtifact@1
@@ -154,10 +132,3 @@ steps:
     artifact: 'react'
     publishLocation: 'pipeline'
 
-# - task: PublishBuildArtifacts@1
-#   inputs:
-#     PathtoPublish: '$(Pipeline.Workspace)'
-#     ArtifactName: 'react'
-#     publishLocation: 'Container'
-
-# ($env:REACT_APP_API_HOST="https://transport-api-developmentzzz.azure-api.net/mobilityscheme/upload") -and ($env:PUBLIC_URL = "https://coventrmobsangularzzz.z33.web.core.windows.net") -and (npm run-script build)
