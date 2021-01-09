@@ -13,6 +13,7 @@ const Step1 = ({
   setIsPaperTicket,
   setIsSwiftOnMobile,
   formRef,
+  vehicle
 }) => {
   const [formState, formDispatch] = useContext(FormContext); // Get the state of form data from FormContext
   const [errorState, errorDispatch] = useContext(FormErrorContext); // Get the error state of form data from FormErrorContext
@@ -50,7 +51,7 @@ const Step1 = ({
       {errorState.errors.length > 0 && errorState.continuePressed && (
         <GenericError />
       )}
-      <p>We have recorded your vehicle as a Ford Mondeo.</p>
+      <p>We have recorded your vehicle as a {vehicle}.</p>
       <Radios
         name="CustomerType"
         label="Is this correct?"

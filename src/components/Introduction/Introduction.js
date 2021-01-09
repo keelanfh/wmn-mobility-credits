@@ -8,6 +8,8 @@ const Introduction = ({ setIsFormStarted }) => {
     setIsFormStarted(true);
   };
 
+  const provider = 'woo';
+
   return (
     <>
       <Title />
